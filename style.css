@@ -1,0 +1,24 @@
+body {
+  font-family: "Itim", cursive;
+  font-family: "Noto Sans", sans-serif;
+}
+
+:root {
+  margin: 0 0 0 0;
+}
+
+img {
+  /* display: block; */
+}
+
+main {
+  display: grid;
+  grid-template-columns: 2;
+
+  /* grid-template-rows: 5; */
+}
+
+.post {
+  background-color: red;
+  margin: 5vmin 0 5vmin 0;
+}
