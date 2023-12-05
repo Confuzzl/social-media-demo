@@ -42,128 +42,162 @@ function randomInt(a, b) {
   return Math.floor(Math.random() * (b - a + 1) + a);
 }
 
-function populateMain() {
-  // return;
-  for (let i = 1; i <= 10; i++) {
-    const postElement = document.createElement("div");
-    postElement.id = i;
-    postElement.classList += "post";
-    fetchUser(i).then((p) => {
-      const postHeader = document.createElement("div");
-      postHeader.classList += "post_header";
-      const postHeaderPicture = document.createElement("div");
-      postHeaderPicture.classList += "post_header_picture";
-      const postHeaderUsername = document.createElement("p");
-      postHeaderUsername.classList += "username";
-      postHeaderUsername.innerText = p["username"];
-      const postHeaderFollow = document.createElement("p");
-      postHeaderFollow.classList += "post_header_follow";
-      postHeaderFollow.innerText = "Follow";
-      postHeader.appendChild(postHeaderPicture);
-      postHeader.appendChild(postHeaderUsername);
-      postHeader.appendChild(postHeaderFollow);
-      postElement.appendChild(postHeader);
+function createPostHeader(userJSON, postElement) {
+  const postHeader = document.createElement("div");
+  postHeader.classList += "post_header";
+  const postHeaderPicture = document.createElement("div");
+  postHeaderPicture.classList += "post_header_picture";
+  const postHeaderUsername = document.createElement("p");
+  postHeaderUsername.classList += "username";
+  postHeaderUsername.innerText = userJSON["username"];
+  const postHeaderFollow = document.createElement("p");
+  postHeaderFollow.classList += "post_header_follow";
+  postHeaderFollow.innerText = "Follow";
+  postHeader.appendChild(postHeaderPicture);
+  postHeader.appendChild(postHeaderUsername);
+  postHeader.appendChild(postHeaderFollow);
+  postElement.appendChild(postHeader);
+}
 
-      fetchRandomImage().then((p) => {
-        const imageHolder = document.createElement("div");
-        imageHolder.classList += "post_image_holder";
-        const imageElement = new Image();
-        imageElement.classList += "post_image";
-        imageElement.src = p["url"];
-        imageHolder.appendChild(imageElement);
-        postElement.appendChild(imageHolder);
-      });
+function createImage(imageJSON, postElement) {
+  const imageHolder = document.createElement("div");
+  imageHolder.classList += "post_image_holder";
+  const imageElement = new Image();
+  imageElement.classList += "post_image";
+  imageElement.src = imageJSON["url"];
+  imageHolder.appendChild(imageElement);
+  postElement.appendChild(imageHolder);
+}
 
-      const interactions = document.createElement("div");
-      interactions.classList += "interactions";
-      const likes = document.createElement("p");
-      likes.classList += "likes";
-      likes.innerText += formatter.format(randomInt(0, 10_000));
-      const likesWord = document.createElement("span");
-      likesWord.innerText = " likes";
-      likes.appendChild(likesWord);
-      interactions.appendChild(likes);
-      const shares = document.createElement("p");
-      shares.classList += "shares";
-      shares.innerText += formatter.format(randomInt(0, 1_000));
-      const sharesWord = document.createElement("span");
-      sharesWord.innerText = " shares";
-      shares.appendChild(sharesWord);
-      interactions.appendChild(shares);
-      postElement.appendChild(interactions);
+function createInteractions(postElement) {
+  const interactions = document.createElement("div");
+  interactions.classList += "interactions";
+  const likes = document.createElement("p");
+  likes.classList += "likes";
+  likes.innerText += formatter.format(randomInt(0, 10_000));
+  const likesWord = document.createElement("span");
+  likesWord.innerText = " likes";
+  likes.appendChild(likesWord);
+  interactions.appendChild(likes);
+  const shares = document.createElement("p");
+  shares.classList += "shares";
+  shares.innerText += formatter.format(randomInt(0, 1_000));
+  const sharesWord = document.createElement("span");
+  sharesWord.innerText = " shares";
+  shares.appendChild(sharesWord);
+  interactions.appendChild(shares);
+  postElement.appendChild(interactions);
+  return interactions;
+}
 
-      fetchRandomUserPost(i).then((p) => {
-        const postTitleHeader = document.createElement("div");
-        postTitleHeader.classList += "post_title";
-        const postTitleText = document.createElement("p");
-        postTitleText.innerText = p["title"];
-        postTitleHeader.appendChild(postTitleText);
-        postElement.appendChild(postTitleHeader);
+function createTitle(postJSON, postElement) {
+  const postTitleHeader = document.createElement("div");
+  postTitleHeader.classList += "post_title";
+  const postTitleText = document.createElement("p");
+  postTitleText.innerText = postJSON["title"];
+  postTitleHeader.appendChild(postTitleText);
+  postElement.appendChild(postTitleHeader);
+}
 
-        const postDescription = document.createElement("div");
-        postDescription.classList += "post_description";
-        const postDescriptionText = document.createElement("p");
-        postDescriptionText.innerText = removeNewLines(p["body"]);
-        const postDescriptionDivider = document.createElement("div");
-        postDescriptionDivider.classList += "post_divider";
-        postDescription.appendChild(postDescriptionText);
-        postDescription.appendChild(postDescriptionDivider);
-        postElement.appendChild(postDescription);
+function createDescription(postJSON, postElement) {
+  const postDescription = document.createElement("div");
+  postDescription.classList += "post_description";
+  const postDescriptionText = document.createElement("p");
+  postDescriptionText.innerText = removeNewLines(postJSON["body"]);
+  const postDescriptionDivider = document.createElement("div");
+  postDescriptionDivider.classList += "post_divider";
+  postDescription.appendChild(postDescriptionText);
+  postDescription.appendChild(postDescriptionDivider);
+  postElement.appendChild(postDescription);
+}
 
-        const commentsHolder = document.createElement("div");
-        commentsHolder.classList += "comments_holder";
-        const comments = document.createElement("div");
-        comments.classList += "comments_list";
+function createComment(commentJSON, postElement, commentsList) {
+  const comment = document.createElement("div");
+  comment.classList += "comment";
 
-        const commentCount = randomInt(0, 10);
-        for (let j = 0; j < commentCount; j++) {
-          fetchRandomComment().then((p) => {
-            const comment = document.createElement("div");
-            comment.classList += "comment";
+  const commentText = document.createElement("p");
+  commentText.innerText = removeNewLines(commentJSON["body"]);
 
-            const commentText = document.createElement("p");
-            commentText.innerText = removeNewLines(p["body"]);
+  const commentHeader = document.createElement("div");
+  commentHeader.classList += "comment_header";
+  const commenterPicture = document.createElement("div");
+  commenterPicture.classList += "commenter_picture";
+  fetchUser(randomInt(1, 10)).then((commentorJSON) => {
+    const commenterUsername = document.createElement("p");
+    commenterUsername.classList += "username";
+    commenterUsername.innerText = commentorJSON["username"];
+    commentHeader.appendChild(commenterUsername);
+  });
+  commentHeader.appendChild(commenterPicture);
 
-            const commentHeader = document.createElement("div");
-            commentHeader.classList += "comment_header";
-            const commenterPicture = document.createElement("div");
-            commenterPicture.classList += "commenter_picture";
-            fetchUser(randomInt(1, 10)).then((p) => {
-              const commenterUsername = document.createElement("p");
-              commenterUsername.classList += "username";
-              commenterUsername.innerText = p["username"];
-              commentHeader.appendChild(commenterUsername);
-            });
-            commentHeader.appendChild(commenterPicture);
+  comment.appendChild(commentHeader);
+  comment.appendChild(commentText);
+  commentsList.appendChild(comment);
+}
 
-            comment.appendChild(commentHeader);
-            comment.appendChild(commentText);
-            comments.appendChild(comment);
-          });
-        }
-        commentsHolder.appendChild(comments);
+function createComments(postElement, interactions) {
+  const commentsHolder = document.createElement("div");
+  commentsHolder.classList += "comments_holder";
+  const commentsList = document.createElement("div");
+  commentsList.classList += "comments_list";
 
-        postElement.appendChild(commentsHolder);
-
-        const commentsCount = document.createElement("p");
-        commentsCount.classList += "comments";
-        commentsCount.innerText += commentCount;
-        const commentsWord = document.createElement("span");
-        commentsWord.innerText = " comments";
-        commentsCount.appendChild(commentsWord);
-        interactions.appendChild(commentsCount);
-      });
-
-      const commentBoxHolder = document.createElement("div");
-      commentBoxHolder.classList += "comment_box_holder";
-      const commentBox = document.createElement("input");
-      commentBox.classList += "comment_box";
-      commentBox.placeholder = "Comment";
-      commentBox.type = "text";
-      commentBoxHolder.appendChild(commentBox);
-      postElement.appendChild(commentBoxHolder);
-
-      document.querySelector("main").appendChild(postElement);
+  const commentCount = randomInt(0, 10);
+  for (let i = 0; i < commentCount; i++)
+    fetchRandomComment().then((commentJSON) => {
+      createComment(commentJSON, postElement, commentsList);
     });
-  }
+  commentsHolder.appendChild(commentsList);
+  postElement.appendChild(commentsHolder);
+
+  const commentsCount = document.createElement("p");
+  commentsCount.classList += "comments";
+  commentsCount.innerText += commentCount;
+  const commentsWord = document.createElement("span");
+  commentsWord.innerText = " comments";
+  commentsCount.appendChild(commentsWord);
+  interactions.appendChild(commentsCount);
+}
+
+function populatePostInfo(postJSON, postElement, interactions) {
+  createTitle(postJSON, postElement);
+  createDescription(postJSON, postElement);
+
+  createComments(postElement, interactions);
+}
+
+function populatePost(userJSON, i, postElement) {
+  createPostHeader(userJSON, postElement);
+
+  fetchRandomImage().then((imageJSON) => {
+    createImage(imageJSON, postElement);
+  });
+
+  const interactions = createInteractions(postElement);
+
+  fetchRandomUserPost(i).then((postJSON) => {
+    populatePostInfo(postJSON, postElement, interactions);
+  });
+
+  const commentBoxHolder = document.createElement("div");
+  commentBoxHolder.classList += "comment_box_holder";
+  const commentBox = document.createElement("input");
+  commentBox.classList += "comment_box";
+  commentBox.placeholder = "Comment";
+  commentBox.type = "text";
+  commentBoxHolder.appendChild(commentBox);
+  postElement.appendChild(commentBoxHolder);
+}
+
+function createPost(i) {
+  const postElement = document.createElement("div");
+  postElement.id = i;
+  postElement.classList += "post";
+  fetchUser(i).then((userJSON) => {
+    populatePost(userJSON, i, postElement);
+  });
+  document.querySelector("main").appendChild(postElement);
+}
+
+function populateMain() {
+  for (let i = 1; i <= 10; i++) createPost(i);
 }
